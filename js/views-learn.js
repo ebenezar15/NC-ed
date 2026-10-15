@@ -25,6 +25,7 @@
       };
       el.innerHTML = `
       <section class="hero">
+        <h1 class="sr">Speak Giraffe: learn Nonviolent Communication</h1>
         <div class="hero-say">
           <div class="hero-label" id="hero-label"><span class="dot"></span><span id="hero-label-text">Jackal language: blame, labels and demands</span></div>
           <p class="hero-line jackal" id="hero-line" aria-live="polite"></p>

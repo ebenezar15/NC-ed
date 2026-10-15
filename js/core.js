@@ -183,13 +183,14 @@
   }
   App.buildNav = buildNav;
 
-  let current = null, cleanup = null;
+  let current = null, currentRaw = null, cleanup = null;
   App.go = (hash, force) => {
     const raw = (hash || "#home").replace(/^#/, "");
     const [id, ...rest] = raw.split("/");
     const view = App.views[id] ? id : "home";
     const params = rest.map(decodeURIComponent);
-    if (view === current && !force && !params.length) return;
+    if (raw === currentRaw && !force) return;
+    currentRaw = raw;
     if (typeof cleanup === "function") { try { cleanup(); } catch (e) { /* ignore */ } }
     cleanup = null;
     current = view;
@@ -208,6 +209,9 @@
     if (!force) { window.scrollTo({ top: 0, behavior: calm() ? "auto" : "smooth" }); main.focus({ preventScroll: true }); }
     closeMenu();
   };
+
+  /* views call this to reflect in-view state (filters, selections) in the URL without re-rendering */
+  App.setHash = (raw) => { currentRaw = raw; history.replaceState(null, "", "#" + raw); };
 
   function closeMenu() { $("#rail").classList.remove("open"); $("#menu-btn").setAttribute("aria-expanded", "false"); }
   function initMenu() {
@@ -269,6 +273,9 @@
 
   /* ---------- boot ---------- */
   App.boot = () => {
+    // inline the patch field (a <use> shadow tree doesn't always repaint when theme variables change)
+    const sym = $("#patch-field"), field = $(".patches");
+    if (sym && field) { field.setAttribute("viewBox", sym.getAttribute("viewBox")); field.setAttribute("preserveAspectRatio", "xMidYMid slice"); field.innerHTML = sym.innerHTML; }
     App.applyLook();
     buildSettings();
     buildNav();

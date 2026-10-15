@@ -173,7 +173,7 @@
   <ellipse cx="205" cy="476" rx="150" ry="14" style="fill:var(--ink)" opacity=".1"/>
   <g class="neck">
     <path d="M150 470 C150 400 160 360 175 330 L200 120 C202 96 214 80 236 76 L262 72 C278 70 290 80 292 96 L294 116 C296 128 288 136 276 136 L252 140 L236 330 C250 360 262 410 262 470 Z" style="fill:var(--patch)"/>
-    <g clip-path="url(#gclip)" style="fill:var(--second)" opacity=".55">
+    <g clip-path="url(#gclip)" style="fill:color-mix(in srgb, var(--patch) 45%, #6b3a12)" opacity=".7">
       <path d="${blob(206, 160, 16, 1)}"/><path d="${blob(228, 205, 15, 2)}"/><path d="${blob(200, 240, 17, 3)}"/><path d="${blob(226, 280, 16, 4)}"/>
       <path d="${blob(190, 320, 18, 5)}"/><path d="${blob(234, 340, 15, 0)}"/><path d="${blob(180, 380, 20, 2)}"/><path d="${blob(232, 400, 19, 1)}"/><path d="${blob(200, 440, 20, 3)}"/><path d="${blob(250, 104, 10, 4)}"/>
     </g>
