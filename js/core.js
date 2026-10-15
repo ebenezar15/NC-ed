@@ -25,6 +25,19 @@
   App.save = save;
   App.reset = () => { state = App.state = Object.assign({}, defaults, { theme: state.theme, type: state.type, scale: state.scale, calm: state.calm }); save(); renderXP(); App.go(location.hash || "#home", true); };
 
+  /* two-step confirmation built into the button (no browser dialogs) */
+  App.confirmClick = (btn, askText, fn) => {
+    let armed = null;
+    const label = btn.textContent;
+    btn.addEventListener("click", () => {
+      if (armed) { clearTimeout(armed); armed = null; btn.textContent = label; fn(); return; }
+      btn.textContent = askText;
+      armed = setTimeout(() => { armed = null; btn.textContent = label; }, 4000);
+    });
+  };
+  // printing is unavailable when the app runs inside a frame
+  try { if (window.self !== window.top) document.documentElement.classList.add("framed"); } catch (e) { document.documentElement.classList.add("framed"); }
+
   /* ---------- toasts & confetti ---------- */
   App.toast = (text, icon = "🦒") => {
     const zone = $("#toasts");
@@ -128,7 +141,7 @@
   }
   App.applyLook = () => {
     const root = document.documentElement;
-    root.dataset.theme = state.theme;
+    root.dataset.scheme = state.theme;
     root.dataset.type = state.type;
     root.style.setProperty("--scale", state.scale);
     root.classList.toggle("calm", !!state.calm);
@@ -160,9 +173,7 @@
     });
     $("#text-size").addEventListener("input", (e) => { state.scale = +e.target.value; save(); App.applyLook(); });
     $("#motion-toggle").addEventListener("change", (e) => { state.calm = e.target.checked; save(); App.applyLook(); });
-    $("#reset-progress").addEventListener("click", () => {
-      if (confirm("Reset all points, badges, quiz scores and journal entries in this browser?")) { App.reset(); App.toast("Progress reset", "🧹"); }
-    });
+    App.confirmClick($("#reset-progress"), "Tap again to reset everything", () => { App.reset(); App.toast("Progress reset", "🧹"); });
     $("#settings-btn").addEventListener("click", () => {
       const d = $("#settings");
       if (d.showModal) d.showModal(); else d.setAttribute("open", "");

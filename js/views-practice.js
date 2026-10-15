@@ -170,7 +170,12 @@
         App.state.journal.unshift({ at: Date.now(), prompt: p, text: t }); App.save();
         $("#j-text", box).value = ""; draw(); App.addXP(5, "Journal entry saved"); checkJournal();
       });
-      $("#j-list", box).addEventListener("click", (e) => { const d = e.target.closest("[data-del]"); if (d && confirm("Delete this entry?")) { App.state.journal.splice(+d.dataset.del, 1); App.save(); draw(); } });
+      $("#j-list", box).addEventListener("click", (e) => {
+        const d = e.target.closest("[data-del]"); if (!d) return;
+        if (d.dataset.armed) { App.state.journal.splice(+d.dataset.del, 1); App.save(); draw(); App.toast("Entry deleted", "🗑️"); return; }
+        d.dataset.armed = "1"; d.textContent = "Tap again to delete";
+        setTimeout(() => { if (d.isConnected) { delete d.dataset.armed; d.textContent = "Delete"; } }, 4000);
+      });
       draw();
     },
 
@@ -178,7 +183,7 @@
       const qs = T.conversationPlanner || [];
       box.innerHTML = `<p class="lede">Before a hard conversation, a few minutes of preparation helps you start from connection rather than defence.</p>
       <div class="stack" style="margin-top:18px">${qs.map((q, i) => `<div class="field"><label for="pl-${i}">${i + 1}. ${esc(q)}</label><textarea class="input" id="pl-${i}" style="min-height:64px"></textarea></div>`).join("")}</div>
-      <div class="row" style="margin-top:16px"><button class="btn accent" id="pl-copy">Copy my plan</button><button class="btn ghost" id="pl-print">Print</button></div>`;
+      <div class="row" style="margin-top:16px"><button class="btn accent" id="pl-copy">Copy my plan</button><button class="btn ghost print-only" id="pl-print">Print</button></div>`;
       const plan = () => qs.map((q, i) => `${q}\n${$(`#pl-${i}`, box).value.trim() || "—"}`).join("\n\n");
       $("#pl-copy", box).addEventListener("click", () => { copy(plan()); App.addXP(4, "Prepared a conversation"); });
       $("#pl-print", box).addEventListener("click", () => window.print());
@@ -209,9 +214,10 @@
     },
 
     cards(box) {
-      box.innerHTML = `<div class="row no-print" style="margin-bottom:16px"><p class="muted" style="margin:0">Print these and keep them in a wallet, on the fridge or by your desk.</p><span class="spacer"></span><button class="btn accent" id="pc-print">Print cards</button></div>
+      box.innerHTML = `<div class="row no-print" style="margin-bottom:16px"><p class="muted" style="margin:0">Print or copy these and keep them in a wallet, on the fridge or by your desk.</p><span class="spacer"></span><button class="btn accent print-only" id="pc-print">Print cards</button><button class="btn ghost" id="pc-copy">Copy all cards</button></div>
       <div class="pocket">${(T.pocketCards || []).map((c) => `<div class="pcard"><h4>${esc(c.title)}</h4><ul>${c.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul></div>`).join("")}</div>`;
       $("#pc-print", box).addEventListener("click", () => window.print());
+      $("#pc-copy", box).addEventListener("click", () => copy((T.pocketCards || []).map((c) => `${c.title}\n${c.lines.map((l) => "• " + l).join("\n")}`).join("\n\n")));
     }
   };
   function ul(arr) { return `<ul class="ticks">${(arr || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`; }
